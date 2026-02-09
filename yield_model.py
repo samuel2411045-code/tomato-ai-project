@@ -59,8 +59,8 @@ def predict_yield(
         y = model.predict(x)[0]
         y = float(y)
         if output == "numeric":
-            return YieldPrediction(label="Predicted yield", value=y, units="(model units)", note=None)
-        return YieldPrediction(label=_bucketize(y), value=y, units="(model units)", note=None)
+            return YieldPrediction(label="Predicted yield", value=y, units="tons/acre", note=None)
+        return YieldPrediction(label=_bucketize(y), value=y, units="tons/acre", note=None)
 
     # Heuristic baseline: penalize extreme rainfall, reward balanced NPK + near-neutral pH
     temp = features.get("temp_mean_c", 28.0)
@@ -87,7 +87,7 @@ def predict_yield(
     return YieldPrediction(
         label=label,
         value=float(pseudo_yield),
-        units="(heuristic, not calibrated)",
+        units="tons/acre (estimated)",
         note=f"Model missing at `{model_path.as_posix()}` — using heuristic baseline.",
     )
 

@@ -221,11 +221,6 @@ with st.sidebar:
     """)
     
     st.markdown("---")
-    st.markdown("### 📚 Resources")
-    st.markdown("""
-    [📖 User Guide](#) | [🐛 Report Issue](#) | [⭐ GitHub](#)
-    """)
-    
     st.markdown("---")
     st.info("💡 **Tip**: Use the tabs above to navigate between features!")
 
@@ -264,9 +259,7 @@ with tab1:
         )
 
     with col_r:
-        st.info("**💡 Pro Tips**\n\n✅ Use good lighting\n\n✅ Close-up of single leaf\n\n✅ Clear focus\n\n✅ Avoid shadows")
-        
-        st.success("**Detected Categories:**\n\n🦠 Early Blight\n🦠 Late Blight\n🐛 Leaf Miner\n🌿 Deficiencies\n✅ Healthy")
+        st.markdown(" ") # Spacer
 
     if uploaded is not None:
         img = Image.open(uploaded).convert("RGB")
