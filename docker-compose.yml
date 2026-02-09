@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+      - ./tomato_ai.db:/app/tomato_ai.db
+    environment:
+      - DATABASE_URL=sqlite:///./tomato_ai.db
+      - SECRET_KEY=your-production-secret-key-change-this
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:8000
