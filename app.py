@@ -213,7 +213,7 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 🎯 Features")
     st.markdown("""
-    - ✅ CNN & ViT Models
+    - ✅ CNN Model
     - ✅ Real-time Weather API
     - ✅ OCR Soil Analysis
     - ✅ 8 Disease Categories
@@ -235,7 +235,7 @@ with tab1:
     with col_quick1:
         st.metric("Supported Diseases", "8", "Categories")
     with col_quick2:
-        st.metric("Model Accuracy", "92%", "CNN & ViT")
+        st.metric("Model Accuracy", "92%", "CNN Model")
     with col_quick3:
         st.metric("Processing Time", "<2s", "Per Image")
     
@@ -251,14 +251,7 @@ with tab1:
             help="Upload a clear, well-lit image of a tomato leaf for best results"
         )
         
-        model_choice = st.radio(
-            "🤖 Select AI Model",
-            ["CNN (Fast)", "ViT (Accurate)", "Compare Both"],
-            index=0,
-            horizontal=True
-        )
 
-    with col_r:
         st.markdown(" ") # Spacer
 
     if uploaded is not None:
@@ -267,10 +260,7 @@ with tab1:
         image_rgb = np.array(img)
 
         results = []
-        if model_choice in ["CNN", "Compare Both"]:
-            results.append(predict_leaf_disease(image_rgb=image_rgb, model_path="models/disease_model.h5", model_type="CNN"))
-        if model_choice in ["ViT", "Compare Both"]:
-            results.append(predict_leaf_disease(image_rgb=image_rgb, model_path="models/disease_vit_model.h5", model_type="ViT"))
+        results.append(predict_leaf_disease(image_rgb=image_rgb, model_path="models/disease_model.h5", model_type="CNN"))
 
         st.markdown("---")
         st.markdown("### 📋 Analysis Results")

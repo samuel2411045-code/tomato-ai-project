@@ -31,11 +31,7 @@ class MLService:
                 self.models['disease_cnn'] = keras.models.load_model(cnn_path)
                 logger.info("Loaded CNN disease model")
             
-            # Load ViT disease model
-            vit_path = os.path.join(MODELS_DIR, "disease_vit_model.h5")
-            if os.path.exists(vit_path):
-                self.models['disease_vit'] = keras.models.load_model(vit_path)
-                logger.info("Loaded ViT disease model")
+
             
             # Load yield model
             yield_path = os.path.join(MODELS_DIR, "yield_model.joblib")
@@ -52,25 +48,23 @@ class MLService:
     def predict_disease(
         self,
         image: np.ndarray,
-        model_type: str = "CNN"
+        image: np.ndarray,
     ) -> Dict[str, Any]:
         """
-        Predict disease from leaf image.
+        Predict disease from tomato leaf image.
         
         Args:
-            image: Preprocessed image array (224, 224, 3)
-            model_type: "CNN" or "ViT"
+            image: Preprocessed leaf image array (224, 224, 3)
+            image: Preprocessed leaf image array (224, 224, 3)
         
         Returns:
             Dictionary with prediction results
         """
         try:
-            model_key = f'disease_{model_type.lower()}'
+            if 'disease_cnn' not in self.models:
+                raise ValueError("Disease model not loaded")
             
-            if model_key not in self.models:
-                raise ValueError(f"Model {model_type} not loaded")
-            
-            model = self.models[model_key]
+            model = self.models['disease_cnn']
             
             # Ensure correct shape
             if len(image.shape) == 3:
@@ -94,7 +88,7 @@ class MLService:
                 "disease": disease,
                 "confidence": confidence,
                 "all_predictions": all_preds,
-                "model_used": model_type
+                "model_used": "CNN"
             }
         
         except Exception as e:

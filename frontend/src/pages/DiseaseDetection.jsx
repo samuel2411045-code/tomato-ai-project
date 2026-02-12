@@ -10,7 +10,7 @@ import axios from 'axios'
 export default function DiseaseDetection() {
     const [selectedFile, setSelectedFile] = useState(null)
     const [preview, setPreview] = useState(null)
-    const [modelType, setModelType] = useState('CNN')
+    const [modelType] = useState('CNN')
     const [result, setResult] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
@@ -60,7 +60,7 @@ export default function DiseaseDetection() {
     return (
         <Container maxWidth="md">
             <Typography variant="h3" gutterBottom color="primary">
-                Disease Detection
+                Leaf Disease Detection
             </Typography>
 
             <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
@@ -91,17 +91,10 @@ export default function DiseaseDetection() {
                     </Box>
                 )}
 
-                <FormControl fullWidth sx={{ mb: 3 }}>
-                    <InputLabel>Model</InputLabel>
-                    <Select
-                        value={modelType}
-                        label="Model"
-                        onChange={(e) => setModelType(e.target.value)}
-                    >
-                        <MenuItem value="CNN">CNN (MobileNetV2)</MenuItem>
-                        <MenuItem value="ViT">Vision Transformer (ViT)</MenuItem>
-                    </Select>
-                </FormControl>
+                <Alert severity="info" sx={{ mb: 3 }}>
+                    Note: This system is optimized for <strong>Tomato Leaves</strong> only.
+                    Uploads of fruits, stems, or whole plants may result in inaccurate predictions.
+                </Alert>
 
                 <Button
                     variant="contained"

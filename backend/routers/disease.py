@@ -35,7 +35,7 @@ TREATMENT_ADVICE = {
 @router.post("/predict", response_model=DiseaseResponse)
 async def predict_disease(
     image: UploadFile = File(...),
-    model_type: str = "CNN",
+
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -43,13 +43,10 @@ async def predict_disease(
     Detect disease from tomato leaf image.
     
     - **image**: Leaf image file (JPG, PNG)
-    - **model_type**: "CNN" or "ViT"
+    - **image**: Leaf image file (JPG, PNG)
     """
     try:
-        # Validate model type
-        if model_type not in ["CNN", "ViT"]:
-            raise HTTPException(status_code=400, detail="Invalid model type. Use 'CNN' or 'ViT'")
-        
+
         # Read and preprocess image
         contents = await image.read()
         img = Image.open(io.BytesIO(contents)).convert('RGB')
@@ -57,7 +54,7 @@ async def predict_disease(
         img_array = np.array(img) / 255.0
         
         # Predict
-        result = ml_service.predict_disease(img_array, model_type)
+        result = ml_service.predict_disease(img_array)
         
         # Get treatment advice
         disease = result["disease"]
@@ -66,7 +63,7 @@ async def predict_disease(
         # Save prediction to database
         prediction = DiseasePrediction(
             user_id=current_user.id,
-            model_type=model_type,
+            model_type="CNN",
             predicted_disease=disease,
             confidence=result["confidence"],
             all_predictions=result["all_predictions"],

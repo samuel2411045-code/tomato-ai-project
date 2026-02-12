@@ -55,7 +55,7 @@ def predict_leaf_disease(
     model_type: str = "CNN",
 ) -> DiseasePrediction:
     """
-    Predict tomato leaf disease using a Keras `.h5` model (CNN or ViT) if present.
+    Predict tomato leaf disease using a Keras `.h5` model (CNN) if present.
     If the model file is missing, returns a safe placeholder prediction.
     """
 

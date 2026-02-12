@@ -58,7 +58,8 @@ Then visit http://localhost:8000/docs to use the API directly.
 - Mobile-friendly interface
 
 ### ML Models
-- **CNN (MobileNetV2)** - Disease detection
+- **CNN (MobileNetV2)** - **Leaf Disease Detection**: Analyzes tomato leaf images to detect early blight, late blight, and other conditions using CNN.
+- **Note**: System is optimized for **leaves only**; stem and fruit detection is not supported.
 - **ViT (Vision Transformer)** - Disease detection
 - **RandomForest** - Yield prediction
 
