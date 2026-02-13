@@ -35,6 +35,7 @@ REMEDIES: dict[str, str] = {
     "Nitrogen Deficiency": "Apply Nitrogen-rich fertilizers like Urea, Compost, or Blood Meal.",
     "Pottassium Deficiency": "Add Potassium-rich fertilizers like Muriate of Potash (MOP) or wood ash.",
     "Spotted Wilt Virus": "Control thrips (the vector) using insecticides; remove and destroy infected plants immediately.",
+    "Unrecognized Image": "The uploaded image does not appear to be a tomato leaf. Please upload a clear, well-lit photo of a tomato leaf for accurate diagnosis.",
 }
 
 
@@ -89,9 +90,15 @@ def predict_leaf_disease(
         )
 
     idx = int(np.argmax(probs))
-    label = class_names[idx] if idx < len(class_names) else f"class_{idx}"
-    conf = float(probs[idx]) if hasattr(probs, "__len__") else float(probs)
-    remedy = REMEDIES.get(label, "Consult local agriculture office for diagnosis and treatment guidance.")
+    conf = float(probs[idx])
+    
+    # Confidence Guard: If top prediction is too low, it's likely not a tomato leaf
+    if conf < 0.4:
+        label = "Unrecognized Image"
+        remedy = REMEDIES["Unrecognized Image"]
+    else:
+        label = class_names[idx] if idx < len(class_names) else f"class_{idx}"
+        remedy = REMEDIES.get(label, "Consult local agriculture office for diagnosis and treatment guidance.")
 
     return DiseasePrediction(label=label, confidence=conf, remedy=remedy, model_type=model_type)
 

@@ -266,6 +266,10 @@ with tab1:
         st.markdown("### 📋 Analysis Results")
         
         for res in results:
+            if res.label == "Unrecognized Image":
+                st.warning("⚠️ **Unrecognized Image**: This photo doesn't look like a tomato leaf to the AI. For an accurate diagnosis, please upload a clear, well-lit photo of a tomato leaf.")
+                continue
+
             # Determine color based on confidence
             if res.confidence > 0.8:
                 color = "#10b981"  # Green
