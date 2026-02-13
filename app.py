@@ -267,7 +267,17 @@ with tab1:
         
         for res in results:
             if res.label == "Unrecognized Image":
-                st.warning("⚠️ **Unrecognized Image**: This photo doesn't look like a tomato leaf to the AI. For an accurate diagnosis, please upload a clear, well-lit photo of a tomato leaf.")
+                st.error("### 🛑 Image Not Recognized")
+                st.markdown("""
+                **The AI could not identify this as a tomato leaf.** 
+                
+                To get an accurate diagnosis, please ensure:
+                1. **It is a Tomato Leaf**: Our AI is specialized for tomato leaves only.
+                2. **Good Lighting**: Avoid shadows or very bright glare.
+                3. **Clear Focus**: The leaf should be sharp and centered.
+                4. **No Background Clutter**: Try to photograph the leaf against a neutral background.
+                """)
+                st.info("💡 **Tip**: Close-up shots of a single leaf work best!")
                 continue
 
             # Determine color based on confidence

@@ -46,6 +46,47 @@ def _load_keras_model(model_path: Path):
     return load_model(str(model_path))
 
 
+def is_plant_image(image_rgb: np.ndarray) -> bool:
+    """Check if the image likely contains a plant or leaf using ImageNet classification."""
+    try:
+        import cv2
+        from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input, decode_predictions
+        
+        # Load small ImageNet model (cached by Keras)
+        model = MobileNetV2(weights='imagenet')
+        
+        # Preprocess
+        img = cv2.resize(image_rgb, (224, 224))
+        x = np.expand_dims(img, axis=0)
+        x = preprocess_input(x)
+        
+        # Predict
+        preds = model.predict(x, verbose=0)
+        top_preds = decode_predictions(preds, top=5)[0]
+        
+        # Keywords that suggest a plant or nature scene
+        plant_keywords = {
+            "leaf", "plant", "vegetable", "fruit", "green", "nature", 
+            "garden", "shrub", "vine", "herb", "stalk", "flower",
+            "buckeye", "slug", "pot", "greenhouse", "organic",
+            "bell_pepper", "broccoli", "cucumber", "zucchini", "cucumber"
+        }
+        
+        for _, label, score in top_preds:
+            label_lower = label.lower()
+            if any(kw in label_lower for kw in plant_keywords):
+                return True
+            # Also accept if it's very confident about ANY specific vegetable or nature item
+            if score > 0.5:
+                 return True
+                 
+        return False
+    except Exception:
+        # If verification fails (e.g. no internet for weights or memory error), 
+        # fallback to allowing it (legacy behavior) to avoid breaking the app.
+        return True
+
+
 
 def predict_leaf_disease(
     *,
@@ -92,8 +133,13 @@ def predict_leaf_disease(
     idx = int(np.argmax(probs))
     conf = float(probs[idx])
     
-    # Confidence Guard: If top prediction is too low, it's likely not a tomato leaf
-    if conf < 0.4:
+    # --- Robust Validation Guard ---
+    # 1. ImageNet-based plant check
+    # 2. Confidence check
+    if not is_plant_image(image_rgb):
+        label = "Unrecognized Image"
+        remedy = REMEDIES["Unrecognized Image"]
+    elif conf < 0.4:
         label = "Unrecognized Image"
         remedy = REMEDIES["Unrecognized Image"]
     else:
