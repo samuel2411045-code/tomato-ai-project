@@ -211,14 +211,6 @@ with st.sidebar:
         st.metric("Accuracy", "92%", "+5%")
     
     st.markdown("---")
-    st.markdown("### 🎯 Features")
-    st.markdown("""
-    - ✅ CNN Model
-    - ✅ Real-time Weather API
-    - ✅ OCR Soil Analysis
-    - ✅ 8 Disease Categories
-    - ✅ Bio-fertilizer Recommendations
-    """)
     
     st.markdown("---")
     st.markdown("---")
@@ -256,56 +248,60 @@ with tab1:
 
     if uploaded is not None:
         img = Image.open(uploaded).convert("RGB")
-        st.image(img, caption="Uploaded leaf", width=400)
+        st.image(img, caption="Uploaded leaf", use_column_width=True)
         image_rgb = np.array(img)
 
-        results = []
-        results.append(predict_leaf_disease(image_rgb=image_rgb, model_path="models/disease_model.h5", model_type="CNN"))
+        analyze_btn = st.button("🔍 Analyze Image", type="primary")
 
-        st.markdown("---")
-        st.markdown("### 📋 Analysis Results")
-        
-        for res in results:
-            if res.label == "Unrecognized Image":
-                st.error("### 🛑 Image Not Recognized")
-                st.markdown("""
-                **The AI could not identify this as a tomato leaf.** 
+        if analyze_btn:
+            with st.spinner("AI Analysis in progress..."):
+                results = predict_leaf_disease(image_rgb=image_rgb, model_path="models/disease_model.h5", model_type="CNN")
                 
-                To get an accurate diagnosis, please ensure:
-                1. **It is a Tomato Leaf**: Our AI is specialized for tomato leaves only.
-                2. **Good Lighting**: Avoid shadows or very bright glare.
-                3. **Clear Focus**: The leaf should be sharp and centered.
-                4. **No Background Clutter**: Try to photograph the leaf against a neutral background.
-                """)
-                st.info("💡 **Tip**: Close-up shots of a single leaf work best!")
-                continue
-
-            # Determine color based on confidence
-            if res.confidence > 0.8:
-                color = "#10b981"  # Green
-                emoji = "✅"
-            elif res.confidence > 0.6:
-                color = "#f59e0b"  # Orange
-                emoji = "⚠️"
-            else:
-                color = "#ef4444"  # Red
-                emoji = "❌"
-            
-            with st.expander(f"{emoji} **{res.model_type} Model Results**", expanded=True):
-                col_res1, col_res2 = st.columns([1, 2])
+                # We only have one result (CNN), so we handle it directly or as a list
+                res = results
                 
-                with col_res1:
-                    st.markdown(f"### 🎯 Prediction")
-                    st.markdown(f"<h2 style='color: {color};'>{res.label}</h2>", unsafe_allow_html=True)
-                    st.progress(min(max(res.confidence, 0.0), 1.0))
-                    st.markdown(f"**Confidence:** {res.confidence*100:.1f}%")
+                st.markdown("---")
+                st.markdown("### 📋 Analysis Results")
                 
-                with col_res2:
-                    st.markdown(f"### 💊 Recommended Treatment")
-                    st.markdown(f"{res.remedy}")
+                if res.label == "Unrecognized Image":
+                    st.error("### 🛑 Image Not Recognized")
+                    st.markdown("""
+                    **The AI could not identify this as a tomato leaf.** 
                     
-                    if "healthy" not in res.label.lower():
-                        st.warning("⏰ **Act quickly** to prevent spread to other plants!")
+                    To get an accurate diagnosis, please ensure:
+                    1. **It is a Tomato Leaf**: Our AI is specialized for tomato leaves only.
+                    2. **Good Lighting**: Avoid shadows or very bright glare.
+                    3. **Clear Focus**: The leaf should be sharp and centered.
+                    4. **No Background Clutter**: Try to photograph the leaf against a neutral background.
+                    """)
+                    st.info("💡 **Tip**: Close-up shots of a single leaf work best!")
+                else:
+                    # Determine color based on confidence
+                    if res.confidence > 0.8:
+                        color = "#10b981"  # Green
+                        emoji = "✅"
+                    elif res.confidence > 0.6:
+                        color = "#f59e0b"  # Orange
+                        emoji = "⚠️"
+                    else:
+                        color = "#ef4444"  # Red
+                        emoji = "❌"
+                    
+                    with st.expander(f"{emoji} **{res.model_type} Model Results**", expanded=True):
+                        col_res1, col_res2 = st.columns([1, 2])
+                        
+                        with col_res1:
+                            st.markdown(f"### 🎯 Prediction")
+                            st.markdown(f"<h2 style='color: {color};'>{res.label}</h2>", unsafe_allow_html=True)
+                            st.progress(min(max(res.confidence, 0.0), 1.0))
+                            st.markdown(f"**Confidence:** {res.confidence*100:.1f}%")
+                        
+                        with col_res2:
+                            st.markdown(f"### 💊 Recommended Treatment")
+                            st.markdown(f"{res.remedy}")
+                            
+                            if "healthy" not in res.label.lower():
+                                st.warning("⏰ **Act quickly** to prevent spread to other plants!")
     else:
         st.warning("Upload an image to run disease prediction.")
 
