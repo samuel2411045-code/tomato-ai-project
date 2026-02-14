@@ -48,13 +48,11 @@ class MLService:
     def predict_disease(
         self,
         image: np.ndarray,
-        image: np.ndarray,
     ) -> Dict[str, Any]:
         """
         Predict disease from tomato leaf image.
         
         Args:
-            image: Preprocessed leaf image array (224, 224, 3)
             image: Preprocessed leaf image array (224, 224, 3)
         
         Returns:

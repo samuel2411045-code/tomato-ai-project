@@ -201,8 +201,26 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
+# Initialize Session State for Navigation
+if "active_page" not in st.session_state:
+    st.session_state.active_page = "Dashboard"
+
+def set_page(page: str):
+    st.session_state.active_page = page
+
 # Quick Stats in Sidebar
 with st.sidebar:
+    st.markdown("### 🧭 Navigation")
+    if st.button("🏠 Dashboard", use_container_width=True):
+        set_page("Dashboard")
+    if st.button("🔍 Disease Detection", use_container_width=True):
+        set_page("Disease Detection")
+    if st.button("🌾 Yield Prediction", use_container_width=True):
+        set_page("Yield Prediction")
+    if st.button("🧪 Fertilizer Advice", use_container_width=True):
+        set_page("Fertilizer Recommendation")
+    
+    st.markdown("---")
     st.markdown("### 📊 Quick Stats")
     col1, col2 = st.columns(2)
     with col1:
@@ -211,15 +229,101 @@ with st.sidebar:
         st.metric("Accuracy", "92%", "+5%")
     
     st.markdown("---")
+    st.info("💡 **Tip**: Use the Dashboard to navigate between features!")
+
+# Dashboard Page Implementation
+def show_dashboard():
+    st.markdown("## 🏠 Welcome to Your Farming Hub")
+    st.markdown("Select a tool below to get started with AI-powered analytics.")
     
+    # Custom CSS for Cards
+    st.markdown("""
+    <style>
+        .page-card {
+            background-color: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #86efac;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .page-card:hover {
+            border-color: #22c55e;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .card-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #15803d;
+            margin-bottom: 8px;
+        }
+        .card-desc {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="page-card">
+            <div class="card-icon">🔍</div>
+            <div class="card-title">Disease Detection</div>
+            <div class="card-desc">Identify tomato diseases from leaf images using CNN model.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Open Disease Detection", key="btn_disease", use_container_width=True):
+            set_page("Disease Detection")
+
+    with col2:
+        st.markdown("""
+        <div class="page-card">
+            <div class="card-icon">🌾</div>
+            <div class="card-title">Yield Prediction</div>
+            <div class="card-desc">Forecast crop yield based on soil health and local weather.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Open Yield Prediction", key="btn_yield", use_container_width=True):
+            set_page("Yield Prediction")
+
+    with col3:
+        st.markdown("""
+        <div class="page-card">
+            <div class="card-icon">🧪</div>
+            <div class="card-title">Fertilizer Advice</div>
+            <div class="card-desc">Get customized NPK and bio-fertilizer recommendations.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Open Fertilizer Advice", key="btn_fert", use_container_width=True):
+            set_page("Fertilizer Recommendation")
+
+    # Metrics Section
     st.markdown("---")
-    st.markdown("---")
-    st.info("💡 **Tip**: Use the tabs above to navigate between features!")
+    st.markdown("### 📈 Performance Overview")
+    m1, m2, m3 = st.columns(3)
+    with m1:
+        st.metric("Total Analysis Done", "1,280", "↑ 12%")
+    with m2:
+        st.metric("Healthy Leaves Detected", "85%", "Daily Avg")
+    with m3:
+        st.metric("Yield Increase", "15%", "Estimated")
 
-tab1, tab2, tab3 = st.tabs(["🔍 Disease Detection", "🌾 Yield Prediction", "🧪 Fertilizer Recommendation"])
-
-
-with tab1:
+# Feature Page Implementations
+def show_disease_detection():
     st.markdown("## 🔬 Disease Detection & Analysis")
     
     # Quick Action Bar
@@ -242,8 +346,6 @@ with tab1:
             type=["jpg", "jpeg", "png"],
             help="Upload a clear, well-lit image of a tomato leaf for best results"
         )
-        
-
         st.markdown(" ") # Spacer
 
     if uploaded is not None:
@@ -256,10 +358,7 @@ with tab1:
         if analyze_btn:
             with st.spinner("AI Analysis in progress..."):
                 results = predict_leaf_disease(image_rgb=image_rgb, model_path="models/disease_model.h5", model_type="CNN")
-                
-                # We only have one result (CNN), so we handle it directly or as a list
                 res = results
-                
                 st.markdown("---")
                 st.markdown("### 📋 Analysis Results")
                 
@@ -267,53 +366,34 @@ with tab1:
                     st.error("### 🛑 Image Not Recognized")
                     st.markdown("""
                     **The AI could not identify this as a tomato leaf.** 
-                    
-                    To get an accurate diagnosis, please ensure:
-                    1. **It is a Tomato Leaf**: Our AI is specialized for tomato leaves only.
-                    2. **Good Lighting**: Avoid shadows or very bright glare.
-                    3. **Clear Focus**: The leaf should be sharp and centered.
-                    4. **No Background Clutter**: Try to photograph the leaf against a neutral background.
+                    To get an accurate diagnosis, please ensure it's a clear, well-lit tomato leaf.
                     """)
-                    st.info("💡 **Tip**: Close-up shots of a single leaf work best!")
                 else:
-                    # Determine color based on confidence
-                    if res.confidence > 0.8:
-                        color = "#10b981"  # Green
-                        emoji = "✅"
-                    elif res.confidence > 0.6:
-                        color = "#f59e0b"  # Orange
-                        emoji = "⚠️"
-                    else:
-                        color = "#ef4444"  # Red
-                        emoji = "❌"
+                    color = "#10b981" if res.confidence > 0.8 else "#f59e0b" if res.confidence > 0.6 else "#ef4444"
+                    emoji = "✅" if res.confidence > 0.8 else "⚠️" if res.confidence > 0.6 else "❌"
                     
                     with st.expander(f"{emoji} **{res.model_type} Model Results**", expanded=True):
                         col_res1, col_res2 = st.columns([1, 2])
-                        
                         with col_res1:
                             st.markdown(f"### 🎯 Prediction")
                             st.markdown(f"<h2 style='color: {color};'>{res.label}</h2>", unsafe_allow_html=True)
                             st.progress(min(max(res.confidence, 0.0), 1.0))
                             st.markdown(f"**Confidence:** {res.confidence*100:.1f}%")
-                        
                         with col_res2:
                             st.markdown(f"### 💊 Recommended Treatment")
                             st.markdown(f"{res.remedy}")
-                            
                             if "healthy" not in res.label.lower():
-                                st.warning("⏰ **Act quickly** to prevent spread to other plants!")
+                                st.warning("⏰ **Act quickly** to prevent spread!")
     else:
         st.warning("Upload an image to run disease prediction.")
 
-
-with tab2:
+def show_yield_prediction():
     st.subheader("Yield Prediction (Season + Open‑Meteo Weather + Soil)")
     col_a, col_b, col_c = st.columns([1, 1, 1])
 
     with col_a:
         season = st.selectbox("Season", ["Kharif", "Rabi", "Summer"], index=0)
         variety = st.selectbox("Tomato variety", TOMATO_VARIETIES, index=0)
-        st.caption("Variety is collected for UI completeness; add it as a feature when you train a model.")
 
     with col_b:
         st.markdown("**Location Detection**")
@@ -342,35 +422,19 @@ with tab2:
     if run:
         end = date.today()
         start = end - timedelta(days=int(days))
-
         with st.spinner("Fetching weather from Open‑Meteo..."):
             try:
                 w = fetch_open_meteo_daily(latitude=float(latitude), longitude=float(longitude), start=start, end=end)
             except Exception as e:
                 st.error(f"Weather fetch failed: {e}")
                 st.stop()
-
         st.success("Weather fetched.")
-        st.write(
-            {
-                "temp_mean_c": w.tmean_c,
-                "temp_min_c": w.tmin_c,
-                "temp_max_c": w.tmax_c,
-                "rainfall_mm": w.rainfall_mm,
-            }
-        )
-
         features = {
-            "temp_mean_c": float(w.tmean_c),
-            "rainfall_mm": float(w.rainfall_mm),
-            "soil_n": float(n),
-            "soil_p": float(p),
-            "soil_k": float(k),
-            "soil_ph": float(ph),
-            "organic_carbon": float(oc),
+            "temp_mean_c": float(w.tmean_c), "rainfall_mm": float(w.rainfall_mm),
+            "soil_n": float(n), "soil_p": float(p), "soil_k": float(k),
+            "soil_ph": float(ph), "organic_carbon": float(oc),
         }
         features.update(_season_one_hot(season))
-
         pred = predict_yield(features=features, output="bucket")
         st.markdown(f"**Yield category:** {pred.label}")
         if pred.value is not None:
@@ -378,14 +442,11 @@ with tab2:
         if pred.note:
             st.info(pred.note)
 
-
-with tab3:
+def show_fertilizer_recommendation():
     st.subheader("Fertilizer & Bio-fertilizer Recommendation")
     st.caption("Upload your Soil Health Card OR enter values directly.")
 
     soil_uploaded = st.file_uploader("Upload Soil Health Card (OCR)", type=["jpg", "jpeg", "png"])
-    
-    # Initialize values from OCR or Defaults
     ocr_data = None
     if soil_uploaded:
         with st.spinner("Extracting data from Soil Health Card..."):
@@ -394,46 +455,41 @@ with tab3:
 
     col1, col2 = st.columns([1, 1])
     with col1:
-        n_val = ocr_data.n if ocr_data else 200.0
-        p_val = ocr_data.p if ocr_data else 15.0
-        k_val = ocr_data.k if ocr_data else 200.0
-        
-        n = st.number_input("Nitrogen (N)", min_value=0.0, value=n_val, step=1.0, key="fert_n")
-        p = st.number_input("Phosphorus (P)", min_value=0.0, value=p_val, step=1.0, key="fert_p")
-        k = st.number_input("Potassium (K)", min_value=0.0, value=k_val, step=1.0, key="fert_k")
+        n = st.number_input("Nitrogen (N)", min_value=0.0, value=ocr_data.n if ocr_data else 200.0, step=1.0, key="fert_n")
+        p = st.number_input("Phosphorus (P)", min_value=0.0, value=ocr_data.p if ocr_data else 15.0, step=1.0, key="fert_p")
+        k = st.number_input("Potassium (K)", min_value=0.0, value=ocr_data.k if ocr_data else 200.0, step=1.0, key="fert_k")
     with col2:
-        ph_val = ocr_data.ph if ocr_data else 6.8
-        oc_val = ocr_data.organic_carbon if ocr_data else 0.7
-        
-        ph = st.number_input("pH", min_value=0.0, max_value=14.0, value=ph_val, step=0.1, key="fert_ph")
-        oc = st.number_input("Organic Carbon (%)", min_value=0.0, value=oc_val, step=0.1, key="fert_oc")
+        ph = st.number_input("pH", min_value=0.0, max_value=14.0, value=ocr_data.ph if ocr_data else 6.8, step=0.1, key="fert_ph")
+        oc = st.number_input("Organic Carbon (%)", min_value=0.0, value=ocr_data.oc if ocr_data else 0.7, step=0.1, key="fert_oc")
 
     if st.button("Get recommendation", type="primary"):
         rec = recommend_fertilizer(SoilCard(n=float(n), p=float(p), k=float(k), ph=float(ph), organic_carbon=float(oc)))
         st.markdown(f"**Soil summary:** {rec.summary}")
-
         c1, c2, c3 = st.columns([1, 1, 1])
         with c1:
             st.markdown("**Chemical fertilizers**")
             if rec.chemical:
-                for x in rec.chemical:
-                    st.write(f"- {x}")
-            else:
-                st.write("No chemical fertilizer suggestions based on current rules.")
+                for x in rec.chemical: st.write(f"- {x}")
+            else: st.write("No suggestions.")
         with c2:
             st.markdown("**Bio-fertilizers / microbes**")
-            for x in rec.bio:
-                st.write(f"- {x}")
+            for x in rec.bio: st.write(f"- {x}")
         with c3:
             st.markdown("**Organic recommendations**")
             if rec.organic:
-                for x in rec.organic:
-                    st.write(f"- {x}")
-            else:
-                st.write("Maintain current organic matter inputs.")
-
+                for x in rec.organic: st.write(f"- {x}")
+            else: st.write("Maintain current organic matter inputs.")
         if rec.notes:
             st.markdown("**Notes**")
-            for n_ in rec.notes:
-                st.write(f"- {n_}")
+            for n_ in rec.notes: st.write(f"- {n_}")
+
+# Page Router
+if st.session_state.active_page == "Dashboard":
+    show_dashboard()
+elif st.session_state.active_page == "Disease Detection":
+    show_disease_detection()
+elif st.session_state.active_page == "Yield Prediction":
+    show_yield_prediction()
+elif st.session_state.active_page == "Fertilizer Recommendation":
+    show_fertilizer_recommendation()
 

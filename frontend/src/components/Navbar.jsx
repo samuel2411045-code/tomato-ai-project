@@ -1,26 +1,37 @@
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material'
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, useTheme, useMediaQuery } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import { Spa, Dashboard, BugReport, Agriculture } from '@mui/icons-material'
+import { Spa, Menu as MenuIcon } from '@mui/icons-material'
 
-export default function Navbar({ user, onLogout }) {
+export default function Navbar({ user, onLogout, onMenuClick }) {
     const navigate = useNavigate()
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
     return (
         <AppBar position="static" sx={{ background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)' }}>
             <Toolbar>
+                {isMobile && user && (
+                    <IconButton
+                        color="inherit"
+                        onClick={onMenuClick}
+                        sx={{ mr: 2 }}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                )}
                 <Spa sx={{ mr: 2 }} />
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     Tomato AI Guidance
                 </Typography>
-                {user && (
+                {user && !isMobile && (
                     <Box sx={{ display: 'flex', gap: 2 }}>
-                        <Button color="inherit" startIcon={<Dashboard />} onClick={() => navigate('/dashboard')}>
+                        <Button color="inherit" onClick={() => navigate('/dashboard')}>
                             Dashboard
                         </Button>
-                        <Button color="inherit" startIcon={<BugReport />} onClick={() => navigate('/disease')}>
+                        <Button color="inherit" onClick={() => navigate('/disease')}>
                             Disease
                         </Button>
-                        <Button color="inherit" startIcon={<Agriculture />} onClick={() => navigate('/yield')}>
+                        <Button color="inherit" onClick={() => navigate('/yield')}>
                             Yield
                         </Button>
                         <Button color="inherit" onClick={onLogout}>
